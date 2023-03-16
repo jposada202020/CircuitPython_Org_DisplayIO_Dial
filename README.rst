@@ -3,11 +3,11 @@ Introduction
 
 
 .. image:: https://readthedocs.org/projects/circuitpython-displayio_dial/badge/?version=latest
-    :target: https://circuitpython-displayio_dial.readthedocs.io/
+    :target: https://circuitpython-simple_dial.readthedocs.io/
     :alt: Documentation Status
 
 .. image:: https://github.com/circuitpython/CircuitPython_simple_dial/workflows/Build%20CI/badge.svg
-    :target: https://github.com/circuitpython/CircuitPython_simple_dial/actions
+    :target: https://github.com/jposada202020/CircuitPython_simple_dial/actions
     :alt: Build Status
 
 
@@ -70,4 +70,3 @@ Contributing
 Contributions are welcome! Please read our `Code of Conduct
 <https://github.com/circuitpython/CircuitPython_simple_dial/blob/HEAD/CODE_OF_CONDUCT.md>`_
 before contributing to help this project stay welcoming.
-
