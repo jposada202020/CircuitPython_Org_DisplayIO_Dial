@@ -42,11 +42,6 @@ class Dial(displayio.Group):
     :param int padding: keep out padding amount around the border, in pixels,
      default is 12
 
-    :param float start_angle: starting angle, in degrees.  Set to `None` for symmetry along
-     vertical axis.  Vertical is defined as 0 degrees.
-     Negative values are counter-clockwise degrees; positive values
-     are clockwise degrees. Defaults to `None`.
-
     :param float min_value: the minimum value displayed on the dial, default is 0.0
     :param float max_value: the maximum value displayed the dial, default is 100.0
     :param float value: the value to display (if None, defaults to ``min_value``)
@@ -94,11 +89,8 @@ class Dial(displayio.Group):
     :param (int,int) anchored_position: (x,y) pixel value for the location
      of the ``anchor_point``
 
-    **Simple example of dial and moving needle**
 
     """
-
-    # The dial is a subclass of Group->Widget.
 
     def __init__(
         self,
@@ -107,18 +99,11 @@ class Dial(displayio.Group):
         width=100,
         height=100,
         padding=12,  # keepout amount around border, in pixels
-        start_angle=None,
-        clip_needle=False,
-        # trims off the needle outside of the dial region, used for sweep_angles < 180
         needle_width=7,
         # triangle with this base width, best if this is odd
         needle_color=0x880000,
         limit_rotation=True,
         value=None,
-        value_font=None,
-        display_value=False,
-        value_color=0xFF0000,
-        value_format_string=":0.0f",
         min_value=0.0,
         max_value=100.0,
         tick_color=0xFFFFFF,
@@ -151,26 +136,9 @@ class Dial(displayio.Group):
         else:
             self._value = value
 
-        if value_font is None:
-            self._value_font = terminalio_FONT
-        else:
-            self._value_font = value_font
-        self._value_color = value_color
-        self._display_value = display_value
-        self._value_format_string = value_format_string
-
         self._anchor_point = None
         self._anchored_position = None
 
-        self._sweep_angle = 360
-
-        if start_angle is None:
-            start_angle = -360 / 2
-        elif not -360 <= start_angle <= 360:
-            raise ValueError("start_angle must be between -360 and +360 degrees")
-        self._start_angle = start_angle
-
-        self._clip_needle = clip_needle
         self._needle_width_requested = needle_width
         self._needle_color = needle_color
         self._limit_rotation = limit_rotation
@@ -212,9 +180,6 @@ class Dial(displayio.Group):
 
     def _initialize_dial(self, width, height):
 
-        for _ in range(len(self)):
-            self.pop()
-
         # get the tick label font height
         self._font_height = self._get_font_height(
             font=self._tick_label_font, scale=self._tick_label_scale
@@ -226,9 +191,7 @@ class Dial(displayio.Group):
         self._update_position()
 
         # create the dial palette and bitmaps
-        self.dial_bitmap = displayio.Bitmap(
-            self._width, self._height, 3
-        )  # 3 colors: background, ticks, tick label text
+        self.dial_bitmap = displayio.Bitmap(self._width, self._height, 3)
 
         # paint the dial major and minor ticks and labels
         draw_ticks(  # major ticks
@@ -238,8 +201,6 @@ class Dial(displayio.Group):
             tick_count=self._major_ticks,
             tick_stroke=self._major_tick_stroke,
             tick_length=self._major_tick_length,
-            start_angle=self._start_angle,
-            sweep_angle=self._sweep_angle,
             tick_color_index=2,
         )
 
@@ -250,8 +211,6 @@ class Dial(displayio.Group):
             tick_count=self._minor_ticks * (self._major_ticks - 1) + 1,
             tick_stroke=self._minor_tick_stroke,
             tick_length=self._minor_tick_length,
-            start_angle=self._start_angle,
-            sweep_angle=self._sweep_angle,
             tick_color_index=2,
         )
 
@@ -261,8 +220,6 @@ class Dial(displayio.Group):
             tick_labels=self._major_tick_labels,
             dial_center=self._dial_center,
             dial_radius=self._dial_radius,
-            start_angle=self._start_angle,
-            sweep_angle=self._sweep_angle,
             rotate_labels=self._rotate_tick_labels,
             font_height=self._font_height,
             tick_label_scale=self._tick_label_scale,
@@ -284,95 +241,40 @@ class Dial(displayio.Group):
         )
         self.append(self.dial_tilegrid)
 
-        # create the label for the display_value
-        if self._display_value:
-            self._value_label = bitmap_label.Label(
-                self._value_font,
-                text="",
-                color=self._value_color,
-                baseline_alignment=True,
-            )
-            self._value_label.anchor_point = self._label_anchor_point
-            self._value_label.anchored_position = [
-                round(self._width * self._label_anchor_on_widget[0]),
-                round(self._height * self._label_anchor_on_widget[1]),
-            ]
-            self._update_value()
-            self.append(self._value_label)
-
         # create the needle
         self._create_needle()
         self.append(self._needle)
         self._update_needle(self._value)
 
     def _adjust_dimensions(self, width, height):
-        # get normalized dimensions of the dial based on start_angle and sweep_angle
-        # in units of diameter
 
-        # if the sweep angle is < 180, then adjust size if needle should clipped:
-        if (self._sweep_angle < 180) and (self._clip_needle):
-            [left, top, right, bottom, x_center_calc, y_center_calc] = _getCoords(
-                [self._start_angle, self._start_angle + self._sweep_angle],
-                ignore_center=True,
-            )
-        else:
-            [left, top, right, bottom, x_center_calc, y_center_calc] = _getCoords(
-                [self._start_angle, self._start_angle + self._sweep_angle]
-            )
+        [left, top, right, bottom, x_center_calc, y_center_calc] = [
+            0,
+            0,
+            1.0,
+            1,
+            0.5,
+            0.5,
+        ]
 
         # calculate the pixel dimension to fit within width/height (including padding)
         if (width - 2 * self._padding < 0) or (height - 2 * self._padding < 0):
             raise ValueError("Width, height, or padding size makes zero sized box")
-        requested_aspect_ratio = (width - 2 * self._padding) / (
-            height - 2 * self._padding
-        )
+
         box_aspect_ratio = (right - left) / (bottom - top)
 
-        if box_aspect_ratio >= requested_aspect_ratio:
-            # keep width and adjust the width
-            self._width = width
-            self._height = math.ceil((width - 2 * self._padding) / box_aspect_ratio) + (
-                2 * self._padding
-            )
-            radius = round((width - 2 * self._padding) / (2 * (right - left)))
-
-        else:
-            # keep height and adjust the width
-            self._height = height
-            self._width = math.ceil(
-                ((height - 2 * self._padding) * box_aspect_ratio)
-            ) + (2 * self._padding)
-            radius = round((height - 2 * self._padding) / (2 * (bottom - top)))
+        self._width = width
+        self._height = math.ceil((width - 2 * self._padding) / box_aspect_ratio) + (
+            2 * self._padding
+        )
+        radius = round((width - 2 * self._padding) / (2 * (right - left)))
 
         center_x = round(x_center_calc * radius * 2) + self._padding
         center_y = round(y_center_calc * radius * 2) + self._padding
         self._dial_center = (center_x, center_y)
         self._dial_radius = radius
 
-        if self._clip_needle:  # define the line endpoints that will trim off the needle
-            trim_x1 = round(
-                center_x
-                + math.sin(self._start_angle * 2 * math.pi / 360)
-                * (self._dial_radius - self._padding)
-            )
-            trim_y1 = round(
-                center_y
-                - math.cos(self._start_angle * 2 * math.pi / 360)
-                * (self._dial_radius - self._padding)
-            )
-            trim_x2 = round(
-                center_x
-                + math.sin((self._start_angle + self._sweep_angle) * 2 * math.pi / 360)
-                * (self._dial_radius - self._padding)
-            )
-            trim_y2 = round(
-                center_y
-                - math.cos((self._start_angle + self._sweep_angle) * 2 * math.pi / 360)
-                * (self._dial_radius - self._padding)
-            )
-            self._trim_line = [(trim_x1, trim_y1), (trim_x2, trim_y2)]
-        else:
-            self._trim_line = None
+        self._trim_line = None
 
     def _get_font_height(self, font, scale):
         if (self._major_tick_labels == []) or (font is None):
@@ -396,47 +298,7 @@ class Dial(displayio.Group):
             y=0,
         )
 
-        # if clipped, adjust the needle width up according to the clip amount
-        if (
-            (self._sweep_angle < 180)
-            and (self._clip_needle)
-            and (self._trim_line is not None)
-        ):
-            # calculate the line where the needle is most visible
-            max_visible_angle = (2 * math.pi / 360) * (
-                self._start_angle + self._sweep_angle / 2
-            )
-            while True:
-                if max_visible_angle > math.pi:
-                    max_visible_angle -= 2 * math.pi
-                elif max_visible_angle < -math.pi:
-                    max_visible_angle += 2 * math.pi
-                else:
-                    break
-
-            temp_x = self._dial_center[0] + self._dial_radius * math.sin(
-                max_visible_angle
-            )
-            temp_y = self._dial_center[1] - self._dial_radius * math.cos(
-                max_visible_angle
-            )
-
-            temp_line = [self._dial_center, (temp_x, temp_y)]
-
-            x, y = _line_intersection(temp_line, self._trim_line)
-
-            needle_length_showing = math.sqrt((x - temp_x) ** 2 + (y - temp_y) ** 2)
-            self._needle_width = round(
-                self._needle_width_requested * self._dial_radius / needle_length_showing
-            )
-        else:
-            self._needle_width = self._needle_width_requested
-
-    def _update_value(self):
-
-        if self._display_value:
-            format_string = ("{" + self._value_format_string + "}").format(self._value)
-            self._value_label.text = format_string
+        self._needle_width = self._needle_width_requested
 
     def _update_position(self):
         if self._anchor_point is None or self._anchored_position is None:
@@ -470,9 +332,7 @@ class Dial(displayio.Group):
         # for motion acceleration).
 
         # if multiple elements are present, they could each have their own movement functions.
-        angle_offset = (2 * math.pi / 360) * (
-            self._start_angle + self._sweep_angle * position
-        )
+        angle_offset = (2 * math.pi / 360) * (-180 + 360 * position)
 
         return angle_offset
 
@@ -503,25 +363,7 @@ class Dial(displayio.Group):
         x_2 = round(self._dial_center[0] + self._dial_radius * math.sin(angle_offset))
         y_2 = round(self._dial_center[1] - self._dial_radius * math.cos(angle_offset))
 
-        if (((2 * math.pi / 360) * self._sweep_angle) < math.pi) and self._clip_needle:
-            # clip the needle points by adjusting (x0,y0) and (x1,y1)
-            x_0, y_0 = _line_intersection(self._trim_line, [(x_0, y_0), (x_2, y_2)])
-            x_1, y_1 = _line_intersection(self._trim_line, [(x_1, y_1), (x_2, y_2)])
-
-            if (x_0 == x_1) and (y_0 == y_1):
-                x_1 += 1
-                y_1 += 1
-
         self._needle.points = [(x_0, y_0), (x_1, y_1), (x_2, y_2)]
-
-    def resize(self, new_width, new_height):
-        """Resizes the dial dimensions to the maximum size that will
-        fit within the requested bounding box size (``new_width``, ``new_height``)
-
-        :param int new_width: requested width, in pixels
-        :param int new_height: requested height, in pixels
-        """
-        self._initialize_dial(new_width, new_height)
 
     @property
     def value(self):
@@ -533,7 +375,6 @@ class Dial(displayio.Group):
 
         if new_value != self._value:
             self._value = new_value
-            self._update_value()
             self._update_needle(self._value)
 
 
@@ -545,8 +386,6 @@ def draw_ticks(
     tick_count,
     tick_stroke,
     tick_length,
-    start_angle,
-    sweep_angle,
     tick_color_index=2,
 ):
     """Helper function for drawing ticks on the dial widget.  Can be used to
@@ -558,8 +397,6 @@ def draw_ticks(
     :param int dial_radius: the radius of the dial (not including padding), in pixels
     :param int tick_count: number of ticks to be drawn
     :param int tick_stroke: the pixel width of the line used to draw the tick
-    :param float start_angle: starting angle of the dial, in degrees
-    :param float sweep_angle: total sweep angle of the dial, in degrees
     :param int tick_color_index: the bitmap's color index that should be used for
      drawing the tick marks
     """
@@ -576,8 +413,7 @@ def draw_ticks(
 
         for i in range(tick_count):
             this_angle = round(
-                (start_angle + ((i * sweep_angle / (tick_count - 1))))
-                * (2 * math.pi / 360),
+                (-180 + ((i * 360 / (tick_count - 1)))) * (2 * math.pi / 360),
                 4,
             )  # in radians
             target_position_x = dial_center[0] + dial_radius * math.sin(this_angle)
@@ -602,8 +438,6 @@ def draw_labels(
     tick_labels,
     dial_center,
     dial_radius,
-    start_angle,
-    sweep_angle,
     rotate_labels=True,
     tick_label_scale=1.0,
 ):
@@ -619,11 +453,10 @@ def draw_labels(
     :param int dial_radius: the radius of the dial (not including padding), in pixels
     :param int tick_count: number of ticks to be drawn
     :param int tick_stroke: the pixel width of the line used to draw the tick
-    :param float start_angle: starting angle of the dial, in degrees
-    :param float sweep_angle: total sweep angle of the dial, in degrees
     :param bool rotate_labels: set to True if you want the label text to be rotated
      to align with the tick marks
     :param float tick_label_scale: scale factor for the tick text labels, default is 1.0
+
     """
 
     label_count = len(tick_labels)
@@ -635,7 +468,7 @@ def draw_labels(
         )  # make a tick line bitmap for blitting
 
         this_angle = (2 * math.pi / 360) * (
-            start_angle + i * sweep_angle / (label_count - 1)
+            -180 + i * 360 / (label_count - 1)
         )  # in radians
 
         target_position_x = dial_center[0] + (
@@ -660,123 +493,3 @@ def draw_labels(
             angle=this_angle,
             scale=tick_label_scale,
         )
-
-
-# Circle size calculations based on the angle intervals requested
-# Algorithm source
-# https://math.stackexchange.com/questions/45303/how-to-get-rectangular-size-of-arbitrary-circular-sector
-def _isInInterval(theta, interval):
-    theta = theta % 360
-    i = interval[0] % 360
-    f = interval[1] % 360
-    if i < f:
-        return (i <= theta <= f) and (theta <= f)
-    return not f < theta < i
-
-
-def _getXcoord(theta):
-    return (1 + math.cos(theta * 2 * math.pi / 360)) / 2
-
-
-def _getYcoord(theta):
-    return (1 + math.sin(theta * 2 * math.pi / 360)) / 2
-
-
-def _getCoords(interval, ignore_center=False):
-    # This functions gets the maximum bounary dimensions of
-    # a rectangle required to contain a partial circle with
-    # the interval of (start_angle, end_angle)
-    #
-    # Parameter:
-    #     interval = [start_angle, end_angle]
-    #     ignore_center = Set True to exclude the centerpoint from the boundary
-    #
-    # Coordinates for calculations
-    # 0 degrees is up
-    # Circle diameter = 1.0
-    # circle center is always at (0.5, 0.5)
-    # upper left direction is (0.0, 0.0)
-    # dimensions are in units of the circle's diameter (1.0 = diameter)
-    #
-    # Returns:
-    #     (left, top, right, bottom, xCenter_offet, yCenter_offset)
-    # coordinates of the minimum bounding box
-    # and the xCenter_offset, yCenter_offset distance between
-    # the upper left corner and the circle center
-
-    i = interval[0]
-    f = interval[1]
-
-    xi = _getXcoord(i)
-    yi = _getYcoord(i)
-    xf = _getXcoord(f)
-    yf = _getYcoord(f)
-
-    is0 = _isInInterval(0, interval)
-    is90 = _isInInterval(90, interval)
-    is180 = _isInInterval(180, interval)
-    is270 = _isInInterval(270, interval)
-
-    if is0:
-        top = 1.0
-    else:
-        if ignore_center:
-            top = max(xi, xf)
-        else:
-            top = max(xi, xf, 0.5)
-
-    if is90:
-        right = 1.0
-    else:
-        if ignore_center:
-            right = max(yi, yf)
-        else:
-            right = max(yi, yf, 0.5)
-
-    if is180:
-        bottom = 0
-    else:
-        if ignore_center:
-            bottom = min(xi, xf)
-        else:
-            bottom = min(xi, xf, 0.5)
-
-    if is270:
-        left = 0
-    else:
-        if ignore_center:
-            left = min(yi, yf)
-        else:
-            left = min(yi, yf, 0.5)
-
-    xCenter_offset = 0.5 - left
-    yCenter_offset = 0.5 - top
-
-    # Correct coordinates so that upper left corner is (0,0)
-    # Center is always at coordinate (0.5, 0.5)
-    # All coordinates are in units of the circle's diameter
-    # x,y Center_offset is the center point's offset relative to the upper left corner
-    # (left, top, right, bottom, xCenter_offet, yCenter_offset)
-    return [left, 1 - top, right, 1 - bottom, xCenter_offset, -yCenter_offset]
-
-
-# Calculate the intersection point between two lines
-# Source:
-# https://stackoverflow.com/questions/20677795/how-do-i-compute-the-intersection-point-of-two-lines
-
-
-def _line_intersection(line1, line2):
-    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
-    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
-
-    def _det(a, b):
-        return a[0] * b[1] - a[1] * b[0]
-
-    div = _det(xdiff, ydiff)
-    if div == 0:
-        raise Exception("lines do not intersect")
-
-    d = (_det(*line1), _det(*line2))
-    x = _det(d, xdiff) / div
-    y = _det(d, ydiff) / div
-    return round(x), round(y)
