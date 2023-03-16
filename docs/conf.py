@@ -27,8 +27,10 @@ extensions = [
 autodoc_mock_imports = [
     "vectorio",
     "bitmaptools",
+    "displayio",
+    "ulab",
+    "terminalio",
 ]
-
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.4", None),
