@@ -11,14 +11,14 @@ requires = [
 ]
 
 [project]
-name = "circuitpython-simnple_dial"
+name = "circuitpython_simnple_dial"
 description = "Simple dial widget"
 version = "0.0.0+auto.0"
 readme = "README.rst"
 authors = [
     {name = "Jose D. Montoya", email = "uplot@mailmeto.mozmail.com"}
 ]
-urls = {Homepage = "https://github.com/jposada202020/CircuitPython_uplot"}
+urls = {Homepage = "https://github.com/jposada202020/CircuitPython_simple_dial"}
 keywords = [
     "adafruit",
     "blinka",
@@ -43,7 +43,7 @@ classifiers = [
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-packages = ["circuitpython_simple_dial"]
+py-modules = ["simple_dial"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
