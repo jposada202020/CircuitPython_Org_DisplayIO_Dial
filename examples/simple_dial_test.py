@@ -1,16 +1,16 @@
-# SPDX-FileCopyrightText: 2021 Kevin Matocha
+# SPDX-FileCopyrightText: 2023 Jose David Montoya
 #
 # SPDX-License-Identifier: MIT
 #############################
 """
-This is a basic demonstration of a Dial widget.
+This is a basic demonstration of a simple dial.
 """
 
 import time
 import board
 import displayio
 import terminalio
-from displayio_dial import Dial
+from simple_dial import Dial
 
 # Fonts used for the Dial tick labels
 tick_font = terminalio.FONT
@@ -32,7 +32,6 @@ my_dial = Dial(
     height=180,  # requested height of the dial
     padding=25,  # add 25 pixels around the dial to make room for labels
     start_angle=-120,  # left angle position at -120 degrees
-    sweep_angle=240,  # total sweep angle of 240 degrees
     min_value=minimum_value,  # set the minimum value shown on the dial
     max_value=maximum_value,  # set the maximum value shown on the dial
     tick_label_font=tick_font,  # the font used for the tick labels

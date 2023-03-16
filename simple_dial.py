@@ -1,18 +1,17 @@
-# SPDX-FileCopyrightText: 2021 Kevin Matocha
+# SPDX-FileCopyrightText: 2021 Kevin Matocha, 2023 Jose David Montoya
 #
 # SPDX-License-Identifier: MIT
 """
 
-`displayio_dial`
+`simple_dial`
 ================================================================================
-A dial gauge widget for displaying graphical information.
+A simple dial gauge widget for displaying graphical information.
+modified from dial gauge by Kevin Matocha
 
-* Author(s): Kevin Matocha
+* Author(s): Kevin Matocha, Jose David Montoya
 
 Implementation Notes
 --------------------
-
-**Hardware:**
 
 **Software and Dependencies:**
 
@@ -28,19 +27,11 @@ Implementation Notes
 import math
 import displayio
 import vectorio
-
-try:
-    import bitmaptools
-except NameError:
-    pass  # utilize the blit_rotate_scale function defined herein
-
-
 from terminalio import FONT as terminalio_FONT
 from adafruit_display_text import bitmap_label
-from adafruit_displayio_layout.widgets.widget import Widget
 
 
-class Dial(Widget):
+class Dial(displayio.Group):
     """A dial widget.  The origin is set using ``x`` and ``y``.
 
     :param int x: pixel position
@@ -51,8 +42,6 @@ class Dial(Widget):
     :param int padding: keep out padding amount around the border, in pixels,
      default is 12
 
-    :param float sweep_angle: dial rotation, in degrees, maximum value is 360 degrees,
-     default is 90 degrees
     :param float start_angle: starting angle, in degrees.  Set to `None` for symmetry along
      vertical axis.  Vertical is defined as 0 degrees.
      Negative values are counter-clockwise degrees; positive values
@@ -106,70 +95,17 @@ class Dial(Widget):
 
     **Simple example of dial and moving needle**
 
-    See file: ``examples/displayio_layout_dial_simpletest.py``
-
-    .. figure:: dial.gif
-       :scale: 100 %
-       :figwidth: 50%
-       :align: center
-       :alt: Diagram of the dial widget with needle in motion.
-
-       This is a diagram of a dial widget with the needle moving from its
-       minimum to maximum positions.
-
-    .. figure:: dial_variables_angles.png
-       :scale: 50 %
-       :figwidth: 70%
-       :align: center
-       :alt: Diagram showing the definition of ``start_angle`` and ``sweep_angle``,
-        both are in units of degrees.
-
-       Diagram showing the definition of ``start_angle`` and ``sweep_angle``,
-       both are in units of degrees.
-
-    .. figure:: dial_variables_min_max_values.png
-       :scale: 50 %
-       :figwidth: 70%
-       :align: center
-       :alt: Diagram showing the defintion of ``min_value`` and ``max_value``.
-
-       Diagram showing the defintion of ``min_value`` and ``max_value``.
-
-    .. figure:: dial_variables_ticks.png
-       :scale: 50 %
-       :figwidth: 70%
-       :align: center
-       :alt: Diagram showing the various parameters for setting the dial labels
-        and major and minor tick marks.
-
-       Diagram showing the various parameters for setting the dial labels
-       and major and minor tick marks.
-
-    .. figure:: dial_variables_clip_needle.png
-       :scale: 35 %
-       :figwidth: 70%
-       :align: center
-       :alt: Diagram showing the impact of ``clip_needle`` Boolean value.
-
-       Diagram showing the impact of the ``clip_needle`` input parameter,
-       with the dial's boundary shown. For ``sweep_angle`` values less than
-       180 degrees, the needle can protrude a long way from the dial ticks. By
-       setting ``clip_needle = True``, the needle graphic will be clipped at the edge
-       of the dial boundary (see comparison in the graphic above). The left dial is
-       created with ``clip_needle = False``, meaning that the dial is not clipped.  The
-       right dial is created with ``clip_needle = True`` and the needle is clipped at
-       the edge of the dial.  Use additional ``padding`` to expose more length of
-       needle, even when clipped.
     """
 
     # The dial is a subclass of Group->Widget.
 
     def __init__(
         self,
+        x=100,
+        y=100,
         width=100,
         height=100,
         padding=12,  # keepout amount around border, in pixels
-        sweep_angle=90,  # maximum value is 180 degrees
         start_angle=None,
         clip_needle=False,
         # trims off the needle outside of the dial region, used for sweep_angles < 180
@@ -184,8 +120,6 @@ class Dial(Widget):
         value_format_string=":0.0f",
         min_value=0.0,
         max_value=100.0,
-        anchor_point=None,
-        anchored_position=None,
         tick_color=0xFFFFFF,
         major_ticks=5,  # if int, the total number of major ticks
         major_tick_stroke=3,
@@ -207,11 +141,7 @@ class Dial(Widget):
         **kwargs,
     ):
         # initialize the Widget superclass (x, y, scale)
-        super().__init__(**kwargs)
-        # Group elements for SwitchRoundHorizontal:
-        #  0. TileGrid holding bitmap with ticks and tick label text
-        #  1. Value label (optional)
-        #  2. Needle bitmap
+        super().__init__(x=x, y=y, scale=1)
 
         self._min_value = min_value
         self._max_value = max_value
@@ -228,20 +158,13 @@ class Dial(Widget):
         self._display_value = display_value
         self._value_format_string = value_format_string
 
-        self._anchor_point = anchor_point
-        self._anchored_position = anchored_position
+        self._anchor_point = None
+        self._anchored_position = None
 
-        # validate sweep_angle and start_angle
-        if sweep_angle > 360:
-            raise ValueError("sweep_angle must be <= 360 degrees")
-
-        sweep_angle = max(
-            1, sweep_angle
-        )  # constrain to >= 1 to avoid divide by zero errors
-        self._sweep_angle = sweep_angle
+        self._sweep_angle = 360
 
         if start_angle is None:
-            start_angle = -sweep_angle / 2
+            start_angle = -360 / 2
         elif not -360 <= start_angle <= 360:
             raise ValueError("start_angle must be between -360 and +360 degrees")
         self._start_angle = start_angle
@@ -612,49 +535,6 @@ class Dial(Widget):
             self._update_value()
             self._update_needle(self._value)
 
-    @property
-    def value_font(self):
-        """The font used for the value's label."""
-        return self._value_font
-
-    @value_font.setter
-    def value_font(self, new_font):
-        if self._display_value:
-            self._value_label.font = new_font
-        self._value_font = new_font
-
-    @property
-    def value_color(self):
-        """The font color used for the value's label."""
-        return self._value_color
-
-    @value_color.setter
-    def value_color(self, new_color):
-        if self._display_value:
-            self._value_label.color = new_color
-        self._value_color = new_color
-
-    @property
-    def dial_center(self):
-        """The (x,y) pixel location of the dial's center of rotation."""
-        return self._dial_center
-
-    @property
-    def dial_radius(self):
-        """The length of the dial's radius, in pixels."""
-        return self._dial_radius
-
-    @property
-    def start_angle(self):
-        """The starting angle of the dial, in degrees."""
-        return self._start_angle
-
-    @property
-    def sweep_angle(self):
-        """The sweep angle of the dial, in degrees."""
-        return self._sweep_angle
-
-
 def draw_ticks(
     target_bitmap,
     *,
@@ -701,27 +581,18 @@ def draw_ticks(
             target_position_x = dial_center[0] + dial_radius * math.sin(this_angle)
             target_position_y = dial_center[1] - dial_radius * math.cos(this_angle)
 
-            if "rotozoom" in dir(bitmaptools):  # if core function is available
-                bitmaptools.rotozoom(
-                    target_bitmap,
-                    ox=round(target_position_x),
-                    oy=round(target_position_y),
-                    source_bitmap=tick_bitmap,
-                    px=round(tick_bitmap.width / 2),
-                    py=0,
-                    angle=this_angle,  # in radians
-                )
 
-            else:
-                _blit_rotate_scale(  # translate and rotate the tick into the target_bitmap
-                    destination=target_bitmap,
-                    ox=target_position_x,
-                    oy=target_position_y,
-                    source=tick_bitmap,
-                    px=int(tick_bitmap.width / 2),
-                    py=0,
-                    angle=this_angle,  # in radians
-                )
+            bitmaptools.rotozoom(
+                target_bitmap,
+                ox=round(target_position_x),
+                oy=round(target_position_y),
+                source_bitmap=tick_bitmap,
+                px=round(tick_bitmap.width / 2),
+                py=0,
+                angle=this_angle,  # in radians
+            )
+
+
 
 
 def draw_labels(
@@ -780,228 +651,19 @@ def draw_labels(
         else:
             this_angle = 0
 
-        if "rotozoom" in dir(bitmaptools):  # if core function is available
-            bitmaptools.rotozoom(
-                target_bitmap,
-                ox=round(target_position_x),
-                oy=round(target_position_y),
-                source_bitmap=temp_label.bitmap,
-                px=round(temp_label.bitmap.width // 2),
-                py=round(temp_label.bitmap.height // 2),
-                angle=this_angle,
-                scale=tick_label_scale,
-            )
 
-        else:
-            _blit_rotate_scale(  # translate and rotate the tick into the target_bitmap
-                destination=target_bitmap,
-                ox=round(target_position_x),
-                oy=round(target_position_y),
-                source=temp_label.bitmap,
-                px=round(temp_label.bitmap.width // 2),
-                py=round(temp_label.bitmap.height // 2),
-                angle=this_angle,
-                scale=tick_label_scale,
-            )
+        bitmaptools.rotozoom(
+            target_bitmap,
+            ox=round(target_position_x),
+            oy=round(target_position_y),
+            source_bitmap=temp_label.bitmap,
+            px=round(temp_label.bitmap.width // 2),
+            py=round(temp_label.bitmap.height // 2),
+            angle=this_angle,
+            scale=tick_label_scale,
+        )
 
 
-# * Copyright (c) 2017 Werner Stoop <wstoop@gmail.com>
-# *
-# * Permission is hereby granted, free of charge, to any person obtaining a copy
-# * of this software and associated documentation files (the "Software"), to deal
-# * in the Software without restriction, including without limitation the rights
-# * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# * copies of the Software, and to permit persons to whom the Software is
-# * furnished to do so, subject to the following conditions:
-# *
-# * The above copyright notice and this permission notice shall be included in all
-# * copies or substantial portions of the Software.
-# *
-# * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# * SOFTWARE.
-
-
-# Credit from https://github.com/wernsey/bitmap
-# MIT License from
-#  * Copyright (c) 2017 Werner Stoop <wstoop@gmail.com>
-#
-# /**
-# * #### `void bm_rotate_blit(Bitmap *dst, int ox, int oy, Bitmap *src, int px,
-# * int py, double angle, double scale);`
-# *
-# * Rotates a source bitmap `src` around a pivot point `px,py` and blits it
-# * onto a destination bitmap `dst`.
-# *
-# * The bitmap is positioned such that the point `px,py` on the source is at
-# * the offset `ox,oy` on the destination.
-# *
-# * The `angle` is clockwise, in radians. The bitmap is also scaled by the
-# * factor `scale`.
-# */
-# void bm_rotate_blit(Bitmap *dst, int ox, int oy, Bitmap *src, int px,
-# int py, double angle, double scale);
-
-
-#     /*
-#    Reference:
-#    "Fast Bitmap Rotation and Scaling" By Steven Mortimer, Dr Dobbs' Journal, July 01, 2001
-#    http://www.drdobbs.com/architecture-and-design/fast-bitmap-rotation-and-scaling/184416337
-#    See also http://www.efg2.com/Lab/ImageProcessing/RotateScanline.htm
-#    */
-
-# pylint: disable=invalid-name, too-many-branches, too-many-statements
-
-# This function is provided in case the bitmaptools.rotozoom function is not available
-def _blit_rotate_scale(
-    destination,  # destination bitmap
-    ox=None,
-    oy=None,  # (ox, oy) is the destination point where the source (px,py) is placed
-    dest_clip0=None,
-    dest_clip1=None,  # clip0,1 is (x,y) corners of clip window on the destination bitmap
-    source=None,  # source bitmap
-    px=None,
-    py=None,  # (px, py) is the rotation point of the source bitmap
-    source_clip0=None,
-    source_clip1=None,  # clip0,1 is (x,y) corners of clip window on the source bitmap
-    angle=0,  # in radians, clockwise
-    scale=1.0,  # scale factor (float)
-    skip_index=None,  # color index to ignore
-):
-
-    if source is None:
-        pass
-
-    # Check the input limits
-
-    if ox is None:
-        ox = destination.width / 2
-    if oy is None:
-        oy = destination.height / 2
-    if px is None:
-        px = source.width / 2
-    if py is None:
-        py = source.height / 2
-
-    if dest_clip0 is None:
-        dest_clip0 = (0, 0)
-    if dest_clip1 is None:
-        dest_clip1 = (destination.width, destination.height)
-
-    if source_clip0 is None:
-        source_clip0 = (0, 0)
-    if source_clip1 is None:
-        source_clip1 = (source.width, source.height)
-
-    minx = dest_clip1[0]
-    miny = dest_clip1[1]
-    maxx = dest_clip0[0]
-    maxy = dest_clip0[1]
-
-    sinAngle = math.sin(angle)
-    cosAngle = math.cos(angle)
-
-    dx = -cosAngle * px * scale + sinAngle * py * scale + ox
-    dy = -sinAngle * px * scale - cosAngle * py * scale + oy
-    if dx < minx:
-        minx = int(round(dx))
-    if dx > maxx:
-        maxx = int(round(dx))
-    if dy < miny:
-        miny = int(round(dy))
-    if dy > maxy:
-        maxy = int(dy)
-    dx = cosAngle * (source.width - px) * scale + sinAngle * py * scale + ox
-    dy = sinAngle * (source.width - px) * scale - cosAngle * py * scale + oy
-    if dx < minx:
-        minx = int(round(dx))
-    if dx > maxx:
-        maxx = int(round(dx))
-    if dy < miny:
-        miny = int(round(dy))
-    if dy > maxy:
-        maxy = int(round(dy))
-
-    dx = (
-        cosAngle * (source.width - px) * scale
-        - sinAngle * (source.height - py) * scale
-        + ox
-    )
-    dy = (
-        sinAngle * (source.width - px) * scale
-        + cosAngle * (source.height - py) * scale
-        + oy
-    )
-    if dx < minx:
-        minx = int(round(dx))
-    if dx > maxx:
-        maxx = int(round(dx))
-    if dy < miny:
-        miny = int(round(dy))
-    if dy > maxy:
-        maxy = int(round(dy))
-
-    dx = -cosAngle * px * scale - sinAngle * (source.height - py) * scale + ox
-    dy = -sinAngle * px * scale + cosAngle * (source.height - py) * scale + oy
-    if dx < minx:
-        minx = int(round(dx))
-    if dx > maxx:
-        maxx = int(round(dx))
-    if dy < miny:
-        miny = int(round(dy))
-    if dy > maxy:
-        maxy = int(round(dy))
-
-    # /* Clipping */
-    if minx < dest_clip0[0]:
-        minx = dest_clip0[0]
-    if maxx > dest_clip1[0] - 1:
-        maxx = dest_clip1[0] - 1
-    if miny < dest_clip0[1]:
-        miny = dest_clip0[1]
-    if maxy > dest_clip1[1] - 1:
-        maxy = dest_clip1[1] - 1
-
-    dvCol = math.cos(angle) / scale
-    duCol = math.sin(angle) / scale
-
-    duRow = dvCol
-    dvRow = -duCol
-
-    startu = px - (ox * dvCol + oy * duCol)
-    startv = py - (ox * dvRow + oy * duRow)
-
-    rowu = startu + miny * duCol
-    rowv = startv + miny * dvCol
-
-    for y in range(miny, maxy + 1):  # (y = miny, y <= maxy, y++)
-        u = rowu + minx * duRow
-        v = rowv + minx * dvRow
-        for x in range(minx, maxx + 1):  # (x = minx, x <= maxx, x++)
-            if (source_clip0[0] <= u < source_clip1[0]) and (
-                source_clip0[1] <= v < source_clip1[1]
-            ):
-                # get the pixel color (c) from the source bitmap at (u,v)
-                c = source[
-                    int(u) + source.width * int(v)
-                ]  # direct index into bitmap is faster than tuple
-                # c = source[int(u), int(v)]
-
-                if c != skip_index:  # ignore any pixels with skip_index
-                    # place the pixel color (c) into the destination bitmap at (x,y)
-                    destination[
-                        x + y * destination.width
-                    ] = c  # direct index into bitmap is faster than tuple
-                    # destination[x,y] = c
-            u += duRow
-            v += dvRow
-
-        rowu += duCol
-        rowv += dvCol
 
 
 # Circle size calculations based on the angle intervals requested
