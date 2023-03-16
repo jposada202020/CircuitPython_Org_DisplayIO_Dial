@@ -22,7 +22,7 @@ Implementation Notes
 
 # pylint: disable=too-many-lines, too-many-instance-attributes, too-many-arguments
 # pylint: disable=too-many-locals, too-many-statements, attribute-defined-outside-init
-
+# pylint: disable=unused-argument, unsubscriptable-object, undefined-variable, invalid-name
 
 import math
 import displayio
@@ -77,6 +77,7 @@ class Dial(displayio.Group):
     :param float tick_label_scale: the scaling of the tick labels, default = 1.0
     :param Font tick_label_font: font to be used for major tick labels, default
      is ``terminalio.FONT``
+
     :param int tick_label_color: color for the major tick labels, default is 0xFFFFFF
     :param Boolean angle_tick_labels: set True to rotate the major tick labels to
      match the tick angle, default is True
@@ -91,7 +92,7 @@ class Dial(displayio.Group):
     :param (float,float) anchor_point: (X,Y) values from 0.0 to 1.0 to define the dial's
      anchor point relative to the dial's bounding box
     :param (int,int) anchored_position: (x,y) pixel value for the location
-     of the `anchor_point`
+     of the ``anchor_point``
 
     **Simple example of dial and moving needle**
 
@@ -535,6 +536,7 @@ class Dial(displayio.Group):
             self._update_value()
             self._update_needle(self._value)
 
+
 def draw_ticks(
     target_bitmap,
     *,
@@ -581,7 +583,6 @@ def draw_ticks(
             target_position_x = dial_center[0] + dial_radius * math.sin(this_angle)
             target_position_y = dial_center[1] - dial_radius * math.cos(this_angle)
 
-
             bitmaptools.rotozoom(
                 target_bitmap,
                 ox=round(target_position_x),
@@ -591,8 +592,6 @@ def draw_ticks(
                 py=0,
                 angle=this_angle,  # in radians
             )
-
-
 
 
 def draw_labels(
@@ -651,7 +650,6 @@ def draw_labels(
         else:
             this_angle = 0
 
-
         bitmaptools.rotozoom(
             target_bitmap,
             ox=round(target_position_x),
@@ -662,8 +660,6 @@ def draw_labels(
             angle=this_angle,
             scale=tick_label_scale,
         )
-
-
 
 
 # Circle size calculations based on the angle intervals requested

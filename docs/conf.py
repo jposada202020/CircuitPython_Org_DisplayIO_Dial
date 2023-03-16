@@ -19,14 +19,15 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
-    "sphinx.ext.inheritance_diagram",
 ]
 
-# TODO: Please Read!
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["vectorio", "bitmaptools"]
+autodoc_mock_imports = [
+    "vectorio",
+    "bitmaptools",
+]
 
 
 intersphinx_mapping = {
@@ -46,9 +47,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "CircuitPython DisplayIO_Dial Library"
-copyright = "2021 Tim C"
-author = "Tim C"
+project = "CircuitPython Simple Dial"
+copyright = "2023 Jose David Montoya"
+author = "Jose D. Montoya"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -64,7 +65,7 @@ release = "1.0"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -89,10 +90,8 @@ add_function_parentheses = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-# If this is True, todo emits a warning for each TODO entries. The default is False.
 todo_emit_warnings = True
 
 napoleon_numpy_docstring = False
@@ -128,7 +127,7 @@ html_static_path = ["_static"]
 html_favicon = "_static/favicon.ico"
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "CircuitPython_Displayio_dial_Librarydoc"
+htmlhelp_basename = "CircuitPython_simple_dial_Librarydoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -149,8 +148,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "CircuitPython_DisplayIO_Dial_Library.tex",
-        "CircuitPython DisplayIO_Dial Library Documentation",
+        "CircuitPython_Simple_Dial_Library.tex",
+        "CircuitPython Simple_Dial Library Documentation",
         author,
         "manual",
     ),
@@ -163,8 +162,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        "CircuitPython_DisplayIO_Dial_Library",
-        "CircuitPython DisplayIO_Dial Library Documentation",
+        "CircuitPython_simple_dial_Library",
+        "CircuitPython Simple_Dial Library Documentation",
         [author],
         1,
     ),
@@ -178,10 +177,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "CircuitPython_DisplayIO_Dial_Library",
-        "CircuitPython DisplayIO_Dial Library Documentation",
+        "CircuitPython_simple_dial_Library",
+        "CircuitPython simple dial Library Documentation",
         author,
-        "CircuitPython_DisplayIO_Dial_Library",
+        "CircuitPython_simple_dial_Library",
         "One line description of project.",
         "Miscellaneous",
     ),
