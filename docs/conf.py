@@ -30,6 +30,7 @@ autodoc_mock_imports = [
     "displayio",
     "ulab",
     "terminalio",
+    "adafruit_display_text",
 ]
 
 intersphinx_mapping = {
