@@ -7,7 +7,7 @@ Introduction
     :alt: Documentation Status
 
 .. image:: https://github.com/circuitpython/CircuitPython_simple_dial/workflows/Build%20CI/badge.svg
-    :target: https://github.com/jposada202020/CircuitPython_simple_dial/actions
+    :target: https://github.com/jposada202020/CircuitPython_simple_dial/actions/
     :alt: Build Status
 
 
