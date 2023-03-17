@@ -16,9 +16,9 @@ description = "Simple dial widget"
 version = "0.0.0+auto.0"
 readme = "README.rst"
 authors = [
-    {name = "Jose D. Montoya", email = "uplot@mailmeto.mozmail.com"}
+    {name = "Jose D. Montoya", email = "simpledial@mailmeto.mozmail.com"}
 ]
-urls = {Homepage = "https://github.com/jposada202020/CircuitPython_simple_dial"}
+urls = {Homepage = "https://github.com/jposada202020/CircuitPython_simple_dial.git"}
 keywords = [
     "adafruit",
     "blinka",

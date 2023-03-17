@@ -43,33 +43,34 @@ class Dial(displayio.Group):
     :param int padding: keep out padding amount around the border, in pixels,
      default is 12
 
-    :param float min_value: the minimum value displayed on the dial, default is 0.0
-    :param float max_value: the maximum value displayed the dial, default is 100.0
+    :param int needle_width: needle width. Default to :const:`3`
+    :param int needle_color: color value for the needle. Defaults to :const:`0x880000`
+    :param int needle_pad: space between the dial circle and the needle. Defaults to :const:`10`
+    :param bool limit_rotation: Set True to limit needle rotation to between the
+     ``min_value`` and ``max_value``, set to `False` for unlimited rotation. Defaults to `True`
+    :param bool needle_full: Set to True to show a full needle. Defaults to `False`
+
+    :param float min_value: the minimum value displayed on the dial. Defaults to :const:`0.0`
+    :param float max_value: the maximum value displayed the dial. Defaults to :const:`100.0`
     :param float value: the value to display (if None, defaults to ``min_value``)
 
-    :param int needle_width: requested pixel width of the triangular needle,
-     default = 7
-    :param int needle_color: color value for the needle, defaults to red (0xFF0000)
-    :param Boolean limit_rotation: Set True to limit needle rotation to between the
-     ``min_value`` and ``max_value``, set to False for unlimited rotation, default is True
+    :param int tick_color: tick line color (24-bit hex value). Defaults to :const:`0xFFFFFF`
+    :param int major_ticks: number of major ticks. Defaults to :const:`5`
+    :param int major_tick_stroke: major tick line stroke width, in pixels. Defaults to 3
+    :param int major_tick_length: major tick length, in pixels. Default to :const:`10`
 
-    :param int tick_color: tick line color (24-bit hex value), defaults to 0xFFFFFF
-    :param int major_ticks: number of major ticks, default = 5
-    :param int major_tick_stroke: major tick line stroke width, in pixels, default = 3
-    :param int major_tick_length: major tick length, in pixels, default = 10
     :param str major_tick_labels: array of strings for the major tick labels,
      default is ("0", "25", "50", "75", "100")
-    :param float tick_label_scale: the scaling of the tick labels, default = 1.0
+    :param float tick_label_scale: the scaling of the tick labels. Defaults to :const:`1.0`
     :param Font tick_label_font: font to be used for major tick labels, default
      is ``terminalio.FONT``
-
-    :param int tick_label_color: color for the major tick labels, default is 0xFFFFFF
+    :param int tick_label_color: color for the major tick labels. Defaults to :const:`0xFFFFFF`
     :param Boolean angle_tick_labels: set True to rotate the major tick labels to
-     match the tick angle, default is True
+     match the tick angle. Defaults to `True`
 
-    :param int minor_ticks: number of minor ticks (per major tick), default = 5
-    :param int minor_tick_stroke: minor tick line stroke width, in pixels, default = 1
-    :param int minor_tick_length: minor tick length, in pixels, default = 5
+    :param int minor_ticks: number of minor ticks (per major tick). Defaults to :const:`5`
+    :param int minor_tick_stroke: minor tick line stroke width, in pixels. Defaults to :const:`1`
+    :param int minor_tick_length: minor tick length, in pixels. Defaults to :const:`5`
 
     :param int background_color: background color (RGB tuple
      or 24-bit hex value), set `None` for transparent, default is `None`
@@ -82,7 +83,7 @@ class Dial(displayio.Group):
         y=100,
         width=100,
         height=100,
-        padding=5,  # keepout amount around border, in pixels
+        padding=5,
         needle_width=3,
         needle_pad=10,
         needle_full=False,
