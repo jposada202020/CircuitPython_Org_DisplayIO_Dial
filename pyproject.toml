@@ -29,7 +29,7 @@ keywords = [
     "dial",
     "library",
     "plotting",
-    "ulab",
+    "clock",
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -43,7 +43,7 @@ classifiers = [
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-py-modules = ["simple_dial"]
+packages = ["circuitpython_simple_dial"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
