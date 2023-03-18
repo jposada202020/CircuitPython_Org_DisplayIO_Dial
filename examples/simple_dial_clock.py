@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Jose David Montoya
+# SPDX-FileCopyrightText: 2023 Neradoc
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,18 +13,27 @@ from circuitpython_simple_dial.dial_needle import needle
 display = board.DISPLAY
 
 # Create a Dial widget
+width = height = int(min(display.width, display.height) * 0.9)
 my_dial = Dial(
-    x=40,  # set x-position
-    y=40,  # set y-position
-    width=150,  # requested width of the dial
-    height=150,  # requested height of the dial
-    padding=12,  # add 12 pixels around the dial to make room for labels
+    x=display.width // 2 - width // 2,  # set x-position
+    y=display.height // 2 - height // 2,  # set y-position
+    width=width,  # requested width of the dial
+    height=height,  # requested height of the dial
     tick_label_font=terminalio.FONT,  # the font used for the tick labels
     needle_full=False,
+    rotate_tick_labels=False,
+    padding=24,  # add 12 pixels around the dial to make room for labels
+    tick_label_scale=2,
+    major_tick_labels=("6", "9", "12", "3", ""),
 )
 
-my_needle = needle(my_dial, value=30)
-my_needle2 = needle(my_dial, value=60)
+needle_hour = needle(
+    my_dial, value=0, needle_color=0xFF0000, needle_width=5, min_value=0, max_value=12
+)
+needle_min = needle(my_dial, value=0, needle_color=0xFF8000, min_value=0, max_value=60)
+needle_sec = needle(
+    my_dial, value=0, needle_color=0xFFFFFF, needle_width=2, min_value=0, max_value=60
+)
 
 my_group = displayio.Group()
 my_group.append(my_dial)
@@ -34,10 +43,9 @@ display.show(my_group)  # add high level Group to the display
 
 step_size = 1
 
-for this_value in range(1, 100 + 1, step_size):
-    my_needle.value = this_value
-    for this_other_value in range(1, 100, step_size):
-        my_needle2.value = this_other_value
-        display.refresh()
-    display.refresh()  # force the display to refresh
-time.sleep(0.5)
+while True:
+    now = time.localtime()
+    needle_hour.value = (now.tm_hour + 6) % 12
+    needle_min.value = (now.tm_min + 30) % 60
+    needle_sec.value = (now.tm_sec + 30) % 60
+    display.refresh()

@@ -9,11 +9,23 @@ Ensure your device works with this simple test.
 
 .. image:: ../docs/dial.jpg
 
-Dial Clock
+Two Needles
 ------------
 
-Example to use dial as a clock
+Example to use dial with two needles
+
+.. literalinclude:: ../examples/simple_dial_two_needles.py
+    :caption: examples/simple_dial_two_needles.py
+    :linenos:
+
+
+Functional clock
+-----------------
+
+Example of a functional clock
 
 .. literalinclude:: ../examples/simple_dial_clock.py
     :caption: examples/simple_dial_clock.py
     :linenos:
+
+.. image:: ../docs/watchwatch.gif
