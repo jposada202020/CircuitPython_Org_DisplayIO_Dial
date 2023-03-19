@@ -172,28 +172,30 @@ class Dial(displayio.Group):
         )
         self.append(self.dial_tilegrid)
 
-        points = []
-        for i in range(0, 361, 1):
-            points.append(
-                (
-                    self._dial_center[0]
-                    + int(self._dial_radius * math.cos(i * math.pi / 180)),
-                    self._dial_center[1]
-                    + int(self._dial_radius * math.sin(i * math.pi / 180)),
-                )
-            )
+        self._draw_circle()
 
-        for index, _ in enumerate(points):
-            if index + 1 >= len(points):
-                break
-            bitmaptools.draw_line(
-                self.dial_bitmap,
-                points[index][0],
-                points[index][1],
-                points[index + 1][0],
-                points[index + 1][1],
-                2,
-            )
+    def _draw_circle(self):
+
+        x = 0
+        y = self._dial_radius
+        d = 3 - 2 * self._dial_radius
+
+        while x <= y:
+            self.dial_bitmap[x + self._dial_center[0], y + self._dial_center[1]] = 1
+            self.dial_bitmap[-x + self._dial_center[0], -y + self._dial_center[1]] = 1
+            self.dial_bitmap[x + self._dial_center[0], -y + self._dial_center[1]] = 1
+            self.dial_bitmap[-x + self._dial_center[0], y + self._dial_center[1]] = 1
+            self.dial_bitmap[y + self._dial_center[0], x + self._dial_center[1]] = 1
+            self.dial_bitmap[-y + self._dial_center[0], x + self._dial_center[1]] = 1
+            self.dial_bitmap[-y + self._dial_center[0], -x + self._dial_center[1]] = 1
+            self.dial_bitmap[y + self._dial_center[0], -x + self._dial_center[1]] = 1
+
+            if d <= 0:
+                d = d + (4 * x) + 6
+            else:
+                d = d + 4 * (x - y) + 10
+                y = y - 1
+            x = x + 1
 
     def _adjust_dimensions(self, width, height):
 
