@@ -15,13 +15,12 @@ Introduction
     :target: https://github.com/psf/black
     :alt: Code Style: Black
 
-A dial gauge widget for displaying graphical information. Derived from Dial made by Kevin Matocha.
-Main Differences:
-
+A dial gauge widget for displaying graphical information. Derived from Dial made by Kevin Matocha. Main Differences:
     * Dial is a complete circle
     * Needle is a line. This line could be full or half
     * Needle size could be shortened using the pad option
-    * Others to come.
+    * Can have more than one needle.
+    * Minor ticks can have their own labels
 
 .. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/dial.png
 
