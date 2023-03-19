@@ -76,7 +76,13 @@ class Dial(displayio.Group):
         major_ticks=5,  # if int, the total number of major ticks
         major_tick_stroke=4,
         major_tick_length=10,
-        major_tick_labels=("0", "25", "50", "75", "100"),
+        major_tick_labels=(
+            "0",
+            "25",
+            "50",
+            "75",
+        ),
+        minor_tick_labels=None,
         minor_ticks=3,  # if int, the number of minor ticks per major tick
         minor_tick_stroke=1,
         minor_tick_length=5,
@@ -92,6 +98,7 @@ class Dial(displayio.Group):
         self._background_color = background_color
 
         self._major_tick_labels = major_tick_labels
+        self._minor_ticks_labels = minor_tick_labels
 
         self._tick_color = tick_color
         self._tick_label_color = tick_label_color
@@ -130,19 +137,25 @@ class Dial(displayio.Group):
         # create the dial palette and bitmaps
         self.dial_bitmap = displayio.Bitmap(self._width, self._height, 3)
 
-        self.draw_ticks(
+        self.position_major_ticks = self.draw_ticks(
             tick_count=self._major_ticks,
             tick_stroke=self._major_tick_stroke,
             tick_length=self._major_tick_length,
         )
 
-        self.draw_ticks(
+        temporal_position_minor_ticks = self.draw_ticks(
             tick_count=self._minor_ticks * (self._major_ticks - 1) + 1,
             tick_stroke=self._minor_tick_stroke,
             tick_length=self._minor_tick_length,
         )
+        self.position_minor_ticks = []
+        for element in temporal_position_minor_ticks:
+            if element not in self.position_major_ticks:
+                self.position_minor_ticks.append(element)
 
-        self.draw_labels()
+        self.draw_labels(self.position_major_ticks, self._major_tick_labels)
+        if self._minor_ticks_labels:
+            self.draw_labels(self.position_minor_ticks, self._minor_ticks_labels)
 
         self.dial_palette = displayio.Palette(4)
         if self._background_color is None:
@@ -215,7 +228,7 @@ class Dial(displayio.Group):
         :param int tick_stroke: the pixel width of the line used to draw the tick
 
         """
-
+        angle_positions = []
         if tick_count <= 1:
             pass
         else:
@@ -228,6 +241,7 @@ class Dial(displayio.Group):
                     (-180 + ((i * 360 / (tick_count - 1)))) * (2 * math.pi / 360),
                     4,
                 )  # in radians
+                angle_positions.append(this_angle)
                 target_position_x = self._dial_center[0] + self._dial_radius * math.sin(
                     this_angle
                 )
@@ -244,25 +258,24 @@ class Dial(displayio.Group):
                     py=0,
                     angle=this_angle,  # in radians
                 )
+        return angle_positions
 
-    def draw_labels(self):
+    def draw_labels(self, positions, labels):
         """Helper function for drawing text labels on the dial widget.  Can be used
         to customize the dial face.
 
         """
 
-        label_count = len(self._major_tick_labels)
+        label_count = len(positions)
 
-        for i, this_label_text in enumerate(self._major_tick_labels):
-            if i >= label_count - 1:
+        for i, this_label_text in enumerate(labels):
+            if i >= label_count:
                 break
             temp_label = bitmap_label.Label(
                 self._tick_label_font, text=this_label_text
             )  # make a tick line bitmap for blitting
 
-            this_angle = (2 * math.pi / 360) * (
-                -180 + i * 360 / (label_count - 1)
-            )  # in radians
+            this_angle = positions[i]
 
             target_position_x = self._dial_center[0] + (
                 self._dial_radius + self._font_height // 2

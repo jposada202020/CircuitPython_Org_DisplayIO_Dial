@@ -24,7 +24,22 @@ my_dial = Dial(
     rotate_tick_labels=False,
     padding=24,  # add 12 pixels around the dial to make room for labels
     tick_label_scale=2,
-    major_tick_labels=("6", "9", "12", "3", ""),
+    major_tick_labels=(
+        "6",
+        "9",
+        "12",
+        "3",
+    ),
+    minor_tick_labels=(
+        "7",
+        "8",
+        "10",
+        "11",
+        "1",
+        "2",
+        "4",
+        "5",
+    ),
 )
 
 needle_hour = needle(
