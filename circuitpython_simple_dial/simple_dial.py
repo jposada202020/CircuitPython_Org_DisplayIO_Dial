@@ -284,6 +284,9 @@ class Dial(displayio.Group):
                 self._dial_radius + self._font_height // 2
             ) * math.cos(this_angle)
 
+            if not self._rotate_tick_labels:
+                this_angle = 0
+
             bitmaptools.rotozoom(
                 self.dial_bitmap,
                 ox=round(target_position_x),
