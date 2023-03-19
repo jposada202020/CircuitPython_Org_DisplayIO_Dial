@@ -23,6 +23,7 @@ Implementation Notes
 # pylint: disable=too-many-lines, too-many-instance-attributes, too-many-arguments
 # pylint: disable=too-many-locals, too-many-statements, attribute-defined-outside-init
 # pylint: disable=unused-argument, unsubscriptable-object, undefined-variable, invalid-name
+# pylint: disable=invalid-unary-operand-type
 
 import math
 import displayio
