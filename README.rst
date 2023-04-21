@@ -10,6 +10,14 @@ Introduction
     :target: https://github.com/jposada202020/CircuitPython_simple_dial/actions/
     :alt: Build Status
 
+.. image:: https://img.shields.io/pypi/v/circuitpython-simnple-dial.svg
+    :alt: latest version on PyPI
+    :target: https://pypi.python.org/pypi/circuitpython-simnple-dial
+
+.. image:: https://static.pepy.tech/personalized-badge/circuitpython-simnple-dial?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Pypi%20Downloads
+    :alt: Total PyPI downloads
+    :target: https://pepy.tech/project/circuitpython-simnple-dial
+
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
