@@ -174,6 +174,9 @@ class Dial(displayio.Group):
         self.append(self.dial_tilegrid)
 
         self._draw_circle()
+        # For CP version 8.1
+        # bitmaptools.draw_circle(self.dial_bitmap, self._dial_center[0],
+        # self._dial_center[1], self._dial_radius, 1)
 
     def _draw_circle(self):
 

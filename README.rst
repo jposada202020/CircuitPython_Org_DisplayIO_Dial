@@ -16,6 +16,7 @@ Introduction
     :alt: Code Style: Black
 
 A dial gauge widget for displaying graphical information. Derived from Dial made by Kevin Matocha. Main Differences:
+
     * Dial is a complete circle
     * Needle is a line. This line could be full or half
     * Needle size could be shortened using the pad option
@@ -23,6 +24,8 @@ A dial gauge widget for displaying graphical information. Derived from Dial made
     * Minor ticks can have their own labels
 
 .. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/dial.png
+
+.. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/watch.jpg
 
 Dependencies
 =============
