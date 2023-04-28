@@ -31,9 +31,11 @@ A dial gauge widget for displaying graphical information. Derived from Dial made
     * Can have more than one needle.
     * Minor ticks can have their own labels
 
+
+
 .. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/dial.png
 
-.. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/watch.jpg
+.. image:: https://github.com/j posada202020/CircuitPython_simple_dial/blob/main/docs/watch.jpg
 
 Dependencies
 =============
