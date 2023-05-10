@@ -35,7 +35,7 @@ A dial gauge widget for displaying graphical information. Derived from Dial made
 
 .. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/dial.png
 
-.. image:: https://github.com/j posada202020/CircuitPython_simple_dial/blob/main/docs/watch.jpg
+.. image:: https://github.com/jposada202020/CircuitPython_simple_dial/blob/main/docs/watch.jpg
 
 Dependencies
 =============
