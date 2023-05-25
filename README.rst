@@ -24,7 +24,6 @@ Introduction
     :alt: Code Style: Black
 
 A dial gauge widget for displaying graphical information. Derived from Dial made by Kevin Matocha. Main Differences:
-
     * Dial is a complete circle
     * Needle is a line. This line could be full or half
     * Needle size could be shortened using the pad option
@@ -76,10 +75,3 @@ Usage Example
 =============
 
 See scripts in the examples directory of this repository.
-
-Contributing
-============
-
-Contributions are welcome! Please read our `Code of Conduct
-<https://github.com/circuitpython/CircuitPython_simple_dial/blob/HEAD/CODE_OF_CONDUCT.md>`_
-before contributing to help this project stay welcoming.

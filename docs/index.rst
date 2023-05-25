@@ -21,10 +21,8 @@ Table of Contents
 
     api
 
+.. toctree::
+    :caption: Other Links
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    Download from GitHub <https://github.com/jposada202020/CircuitPython_simple_dial/releases/latest>
+    Download Library Bundle <https://circuitpython.org/libraries>
