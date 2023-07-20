@@ -3,7 +3,7 @@ Introduction
 
 
 .. image:: https://readthedocs.org/projects/circuitpython-displayio_dial/badge/?version=latest
-    :target: https://circuitpython-simple_dial.readthedocs.io/
+    :target: https://circuitpython-simple-dial.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 .. image:: https://github.com/jposada202020/CircuitPython_simple_dial/workflows/Build%20CI/badge.svg
